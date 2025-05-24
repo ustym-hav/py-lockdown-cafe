@@ -7,15 +7,22 @@ from app.cafe import Cafe
 
 def go_to_cafe(friends: List[dict], cafe: Cafe) -> str:
     masks_to_buy = 0
-    check_vaccine = None
+    has_unvaccinated_friend = False
+
     for friend in friends:
         try:
             cafe.visit_cafe(friend)
         except VaccineError:
-            check_vaccine = True
+            has_unvaccinated_friend = True
         except NotWearingMaskError:
             masks_to_buy += 1
-    if check_vaccine:
+        except (VaccineError, NotWearingMaskError) as e:
+            if isinstance(e, VaccineError):
+                has_unvaccinated_friend = True
+            if isinstance(e, NotWearingMaskError):
+                masks_to_buy += 1
+
+    if has_unvaccinated_friend:
         return "All friends should be vaccinated"
     if masks_to_buy > 0:
         return f"Friends should buy {masks_to_buy} masks"
